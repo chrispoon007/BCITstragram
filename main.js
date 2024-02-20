@@ -4,8 +4,8 @@ const path = require("path");
  * File Name: main.js
  * Description:
  *
- * Created Date:
- * Author:
+ * Created Date: Feb 13th, 2024
+ * Author: Chris Poon - Set C - A00720639
  *
  */
 

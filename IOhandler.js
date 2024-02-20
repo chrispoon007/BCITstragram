@@ -48,54 +48,66 @@ const readDir = (dir) => {
 };
 
 const grayScale = (pathIn, pathOut) => {
-  fs.createReadStream(pathIn)
-    .pipe(
-      new PNG({
-        filterType: 4,
-      })
-    )
-    .on("parsed", function () {
-      for (var y = 0; y < this.height; y++) {
-        for (var x = 0; x < this.width; x++) {
-          var idx = (this.width * y + x) << 2;
+  return new Promise((resolve, reject) => {
+    const readStream = fs.createReadStream(pathIn);
+    readStream
+      .on('error', reject)
+      .pipe(
+        new PNG({
+          filterType: 4,
+        })
+      )
+      .on("parsed", function () {
+        for (var y = 0; y < this.height; y++) {
+          for (var x = 0; x < this.width; x++) {
+            var idx = (this.width * y + x) << 2;
 
-          var avg = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
+            var avg = (this.data[idx] + this.data[idx + 1] + this.data[idx + 2]) / 3;
 
-          this.data[idx] = avg;
-          this.data[idx + 1] = avg;
-          this.data[idx + 2] = avg;
+            this.data[idx] = avg;
+            this.data[idx + 1] = avg;
+            this.data[idx + 2] = avg;
+          }
         }
-      }
 
-      this.pack().pipe(fs.createWriteStream(`${pathOut}`)); 
-    });
+        this.pack().pipe(fs.createWriteStream(`${pathOut}`))
+          .on('finish', resolve)
+          .on('error', reject);
+      });
+  });
 };
 
 // BONUS: Using this site for sepia algorithm: https://leware.net/photo/blogSepia.html
 const sepiaFilter = (pathIn, pathOut) => {
-  fs.createReadStream(pathIn)
-    .pipe(
-      new PNG({
-        filterType: 4,
-      })
-    )
-    .on("parsed", function () {
-      for (var y = 0; y < this.height; y++) {
-        for (var x = 0; x < this.width; x++) {
-          var idx = (this.width * y + x) << 2;
+  return new Promise((resolve, reject) => {
+    const readStream = fs.createReadStream(pathIn);
+    readStream
+      .on('error', reject)
+      .pipe(
+        new PNG({
+          filterType: 4,
+        })
+      )
+      .on("parsed", function () {
+        for (var y = 0; y < this.height; y++) {
+          for (var x = 0; x < this.width; x++) {
+            var idx = (this.width * y + x) << 2;
 
-          var r = this.data[idx];
-          var g = this.data[idx + 1];
-          var b = this.data[idx + 2];
+            var r = this.data[idx];
+            var g = this.data[idx + 1];
+            var b = this.data[idx + 2];
 
-          this.data[idx] = Math.min(255, (0.393 * r) + (0.769 * g) + (0.189 * b));
-          this.data[idx + 1] = Math.min(255, (0.349 * r) + (0.686 * g) + (0.168 * b));
-          this.data[idx + 2] = Math.min(255, (0.272 * r) + (0.534 * g) + (0.131 * b));
+            this.data[idx] = Math.min(255, (0.393 * r) + (0.769 * g) + (0.189 * b));
+            this.data[idx + 1] = Math.min(255, (0.349 * r) + (0.686 * g) + (0.168 * b));
+            this.data[idx + 2] = Math.min(255, (0.272 * r) + (0.534 * g) + (0.131 * b));
+          }
         }
-      }
 
-      this.pack().pipe(fs.createWriteStream(`${pathOut}`)); 
-    });
+        this.pack().pipe(fs.createWriteStream(`${pathOut}`))
+          .on('finish', resolve)
+          .on('error', reject);
+      });
+  });
 };
 
 module.exports = {
